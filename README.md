@@ -1,4 +1,5 @@
-# Iterable dbt Package ([docs](https://fivetran.github.io/dbt_iterable/))
+<!--section="iterable_transformation_model"-->
+# Iterable dbt Package
 
 <p align="left">
     <a alt="License"
@@ -11,51 +12,81 @@
     <a alt="PRs">
         <img src="https://img.shields.io/badge/Contributions-welcome-blueviolet" /></a>
     <a alt="Fivetran Quickstart Compatible"
-        href="https://fivetran.com/docs/transformations/dbt/quickstart">
+        href="https://fivetran.com/docs/transformations/data-models/quickstart-management#quickstartmanagement">
         <img src="https://img.shields.io/badge/Fivetran_Quickstart_Compatible%3F-yes-green.svg" /></a>
 </p>
 
+This dbt package transforms data from Fivetran's Iterable connector into analytics-ready tables.
+
+## Resources
+
+- Number of materialized models¹: 45
+- Connector documentation
+  - [Iterable connector documentation](https://fivetran.com/docs/connectors/applications/iterable)
+  - [Iterable ERD](https://fivetran.com/docs/connectors/applications/iterable#schemainformation)
+- dbt package documentation
+  - [GitHub repository](https://github.com/fivetran/dbt_iterable)
+  - [dbt Docs](https://fivetran.github.io/dbt_iterable/#!/overview)
+  - [DAG](https://fivetran.github.io/dbt_iterable/#!/overview?g_v=1)
+  - [Changelog](https://github.com/fivetran/dbt_iterable/blob/main/CHANGELOG.md)
+
 ## What does this dbt package do?
-- Produces modeled tables that leverage Iterable data from [Fivetran's connector](https://fivetran.com/docs/applications/iterable) in the format described by [this ERD](https://fivetran.com/docs/applications/iterable#schemainformation).
+This package enables you to understand the efficacy of your growth marketing and customer engagement campaigns across email, SMS, push notification, and in-app platforms. It creates enriched models with metrics focused on event interactions, campaign performance, and user engagement.
 
-- This package enables you to understand the efficacy of your growth marketing and customer engagement campaigns across email, SMS, push notification, and in-app platforms. The package achieves this by:
+### Output schema
+Final output tables are generated in the following target schema:
 
-  - Enriching the core `EVENT` table with data regarding associated users, campaigns, and channels.
-  - Creating current-state models of campaigns and users, enriched with aggregated event and interaction metrics.
-  - Creating a current-state model of message types and channels that each user is currently unsubscribed from.
-  - Re-creating the `LIST_USER_HISTORY` table. The table can be disabled from connector syncs but is required to connect users and their lists.
+```
+<your_database>.<connector/schema_name>_iterable
+```
 
-- Generates a comprehensive data dictionary of your source and modeled Iterable data through the [dbt docs site](https://fivetran.github.io/dbt_iterable/).
+### Final output tables
 
-<!--section="iterable_transformation_model-->
-The following table provides a detailed list of all tables materialized within this package by default.
+By default, this package materializes the following final tables:
 
-> TIP: See more details about these models in the package's [dbt docs site](https://fivetran.github.io/dbt_iterable/).
+| Table | Description |
+| :---- | :---- |
+| [iterable__events](https://fivetran.github.io/dbt_iterable/#!/model/model.iterable.iterable__events) | Tracks all user events with campaign attribution, user details, and channel information to analyze user behavior, conversion paths, and campaign effectiveness at the event level. See [tracked events details](https://fivetran.com/docs/applications/iterable#schemanotes). <br></br>**Example Analytics Questions:**<ul><li>What customer actions drive the most revenue and conversions?</li><li>Are our marketing campaigns more effective than organic customer discovery?</li><li>What customer journey paths lead to purchase or upgrade?</li></ul>|
+| [iterable__user_campaign](https://fivetran.github.io/dbt_iterable/#!/model/model.iterable.iterable__user_campaign) | Aggregates user-level engagement with specific campaigns and experiment variations including event counts by type to measure individual user responses to campaign messaging. <br></br>**Example Analytics Questions:**<ul><li>Which customers are most responsive to our campaigns, and what messages resonate with them?</li><li>Which email variations are winning with our audience?</li><li>How frequently do customers engage with each campaign?</li></ul>|
+| [iterable__campaigns](https://fivetran.github.io/dbt_iterable/#!/model/model.iterable.iterable__campaigns) | Tracks campaign performance with user interaction metrics, event counts, experiment variations, and template details to measure campaign effectiveness and optimize email strategy. <br></br>**Example Analytics Questions:**<ul><li>Which campaigns are driving the most engagement and sales?</li><li>How do different email designs and messaging strategies perform?</li><li>What's the reach and impact of our marketing initiatives?</li></ul>|
+| [iterable__users](https://fivetran.github.io/dbt_iterable/#!/model/model.iterable.iterable__users) | Provides a comprehensive view of each user with campaign engagement history, list memberships, unsubscription status, and interaction metrics to understand user preferences and lifetime engagement. <br></br>**Example Analytics Questions:**<ul><li>Who are our most engaged customers and what do they have in common?</li><li>Why are customers unsubscribing, and what did we lose when they left?</li><li>Which acquisition channels bring us the most engaged customers?</li></ul>|
+| [iterable__list_user_history](https://fivetran.github.io/dbt_iterable/#!/model/model.iterable.iterable__list_user_history) | Chronicles user-list membership history to track when users join or leave lists, manage audience segmentation, and analyze list growth without excessive Monthly Active Rows (MAR) usage. <br></br>**Example Analytics Questions:**<ul><li>Are we growing or losing our subscriber base in key segments?</li><li>Which customers are moving between audience segments, and why?</li><li>How long do customers stay engaged before opting out?</li></ul>|
+| [iterable__user_unsubscriptions](https://fivetran.github.io/dbt_iterable/#!/model/model.iterable.iterable__user_unsubscriptions) | Tracks all user unsubscriptions by message type and channel to manage communication preferences, protect sender reputation, and identify unsubscribe patterns. <br></br>**Example Analytics Questions:**<ul><li>Which types of messages are causing customers to opt out?</li><li>Are we losing customers completely, or just from certain communication types?</li><li>What patterns indicate a customer is likely to unsubscribe?</li></ul>|
 
-| **Table**                | **Description**                                                                                                                                |
-| ------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------- |
-| [iterable__events](https://fivetran.github.io/dbt_iterable/#!/model/model.iterable.iterable__events)             | Each record represents a unique event in Iterable, enhanced with information regarding attributed campaigns, the triggering user, and the channel, template, and message type associated with the event. Commerce events are not tracked by the Fivetran connector. See the [tracked events details](https://fivetran.com/docs/applications/iterable#schemanotes). |
-| [iterable__user_campaign](https://fivetran.github.io/dbt_iterable/#!/model/model.iterable.iterable__user_campaign)             | Each record represents a unique user-campaign-experiment variation combination, enriched with pivoted-out metrics reflecting instances of the user triggering different types of events in campaigns.
-| [iterable__campaigns](https://fivetran.github.io/dbt_iterable/#!/model/model.iterable.iterable__campaigns)             | Each record represents a unique campaign-experiment variation, enriched with gross event and unique user interaction metrics, and information regarding templates, labels, and applied or suppressed lists. |
-| [iterable__users](https://fivetran.github.io/dbt_iterable/#!/model/model.iterable.iterable__users)             | Each record represents the most current state of a unique user, enriched with metrics around the campaigns and lists they have been a part of and interacted with, channels and message types they've unsubscribed from, and more. |
-| [iterable__list_user_history](https://fivetran.github.io/dbt_iterable/#!/model/model.iterable.iterable__list_user_history)             | Each record represents a unique user-list combination. This is intended to recreate the `LIST_USER_HISTORY` source table, which can be disconnected from your syncs, as it can lead to excessive MAR usage. |
-| [iterable__user_unsubscriptions](https://fivetran.github.io/dbt_iterable/#!/model/model.iterable.iterable__user_unsubscriptions)             | Each row represents a message type that a user is currently unsubscribed to, including the channel the message type belongs to. If a user is unsubscribed from an entire channel, each of the channel's message types appears as an unsubscription. |
+¹ Each Quickstart transformation job run materializes these models if all components of this data model are enabled. This count includes all staging, intermediate, and final models materialized as `view`, `table`, or `incremental`.
 
-### Materialized Models
-Each Quickstart transformation job run materializes 45 models if all components of this data model are enabled. This count includes all staging, intermediate, and final models materialized as `view`, `table`, or `incremental`.
-<!--section-end-->
+---
 
-## How do I use the dbt package?
-
-### Step 1: Prerequisites
+## Prerequisites
 To use this dbt package, you must have the following:
 
 - At least one Fivetran Iterable connection syncing data into your destination.
 - A **BigQuery**, **Snowflake**, **Redshift**, **PostgreSQL**, or **Databricks** destination.
 
-#### Databricks Configuration
-- **Databricks Runtime 12.2** or later is required to run all models in this package.
-- We also recommend using the `dbt-databricks` adapter over `dbt-spark` because each adapter handles incremental models differently. If you must use the `dbt-spark` adapter and run into issues, please refer to [this section](https://docs.getdbt.com/reference/resource-configs/spark-configs#the-insert_overwrite-strategy) found in dbt's documentation of Spark configurations.
+#### Unsubscribe tables are no longer history tables
+
+For connections created past August 2023, the `user_unsubscribed_channel_history` and `user_unsubscribed_message_type_history` Iterable objects will no longer be history tables as part of schema changes following Iterable's API updates. The fields have also changed. There is no lift required, since we have checks in place that will automatically persist the respective fields depending on what exists in your schema (they will still be history tables if you are using the old schema).
+
+*Please be sure you are syncing them as either both history or non-history.*
+
+## How do I use the dbt package?
+You can either add this dbt package in the Fivetran dashboard or import it into your dbt project:
+
+- To add the package in the Fivetran dashboard, follow our [Quickstart guide](https://fivetran.com/docs/transformations/data-models/quickstart-management).
+- To add the package to your dbt project, follow the setup instructions in the dbt package's [README file](https://github.com/fivetran/dbt_iterable/blob/main/README.md#how-do-i-use-the-dbt-package) to use this package.
+
+<!--section-end-->
+
+### Install the package
+Include the following Iterable package version in your `packages.yml` file.
+
+> TIP: Check [dbt Hub](https://hub.getdbt.com/) for the latest installation instructions or [read the dbt docs](https://docs.getdbt.com/docs/package-management) for more information on installing packages.
+
+```yaml
+packages:
+  - package: fivetran/iterable
+    version: [">=1.4.0", "<1.5.0"]
+```
 
 #### Database Incremental Strategies
 Many of the models in this package are materialized incrementally, so we have configured our models to work with the different strategies available to each supported warehouse.
@@ -66,23 +97,11 @@ For **Snowflake**, **Redshift**, and **Postgres** databases, we have chosen `del
 
 > Regardless of strategy, we recommend that users periodically run a `--full-refresh` to ensure a high level of data quality.
 
-#### Unsubscribe tables are no longer history tables
+#### Databricks Configuration
+- **Databricks Runtime 12.2** or later is required to run all models in this package.
+- We also recommend using the `dbt-databricks` adapter over `dbt-spark` because each adapter handles incremental models differently. If you must use the `dbt-spark` adapter and run into issues, please refer to [this section](https://docs.getdbt.com/reference/resource-configs/spark-configs#the-insert_overwrite-strategy) found in dbt's documentation of Spark configurations.
 
-For connections created past August 2023, the `user_unsubscribed_channel_history` and `user_unsubscribed_message_type_history` Iterable objects will no longer be history tables as part of schema changes following Iterable's API updates. The fields have also changed. There is no lift required, since we have checks in place that will automatically persist the respective fields depending on what exists in your schema (they will still be history tables if you are using the old schema).
-
-*Please be sure you are syncing them as either both history or non-history.*
-
-### Step 2: Install the package
-Include the following Iterable package version in your `packages.yml` file.
-
-> TIP: Check [dbt Hub](https://hub.getdbt.com/) for the latest installation instructions or [read the dbt docs](https://docs.getdbt.com/docs/package-management) for more information on installing packages.
-
-```yaml
-packages:
-  - package: fivetran/iterable
-    version: [">=1.3.0", "<1.4.0"]
-```
-### Step 3: Define database and schema variables
+### Define database and schema variables
 
 #### Option A: Single connection
 By default, this package runs using your [destination](https://docs.getdbt.com/docs/running-a-dbt-project/using-the-command-line-interface/configure-your-profile) and the `iterable` schema. If this is not where your Iterable data is (for example, if your Iterable schema is named `iterable_fivetran`), add the following configuration to your root `dbt_project.yml` file:
@@ -141,7 +160,7 @@ sources:
     tables: # copy and paste from iterable/models/staging/src_iterable.yml - see https://support.atlassian.com/bitbucket-cloud/docs/yaml-anchors/ for how to use anchors to only do so once
 ```
 
-> **Note**: If there are source tables you do not have (see [Step 4](https://github.com/fivetran/dbt_iterable?tab=readme-ov-file#step-4-disable-models-for-non-existent-sources)), you may still include them, as long as you have set the right variables to `False`.
+> **Note**: If there are source tables you do not have (see [Enabling/Disabling Models](https://github.com/fivetran/dbt_iterable?tab=readme-ov-file#enablingdisabling-models)), you may still include them, as long as you have set the right variables to `False`.
 
 2. Set the `has_defined_sources` variable (scoped to the `iterable` package) to `True`, like such:
 ```yml
@@ -150,7 +169,7 @@ vars:
   iterable:
     has_defined_sources: true
 ```
-### Step 4: Enabling/Disabling Models
+### Enabling/Disabling Models
 Your Iterable connection might not sync every table that this package expects. If your syncs exclude certain tables, it is either because you do not use that functionality in Iterable or have actively excluded some tables from your syncs. In order to enable or disable the relevant tables in the package, you will need to add the following variable(s) to your `dbt_project.yml` file.
 
 By default, all variables are assumed to be `true`.
@@ -163,7 +182,7 @@ vars:
     iterable__using_event_extension: false         # default is true   
 ```
 
-### (Optional) Step 5: Additional configurations
+### (Optional) Additional configurations
 
 #### Passing Through Additional Fields
 
@@ -268,9 +287,9 @@ vars:
     iterable_campaign_suppression_list_history_identifier: "campaign_supression_list_history"
 ```
 
-### (Optional) Step 6: Orchestrate your models with Fivetran Transformations for dbt Core™
+### (Optional) Orchestrate your models with Fivetran Transformations for dbt Core™
 
-Fivetran offers the ability for you to orchestrate your dbt project through [Fivetran Transformations for dbt Core™](https://fivetran.com/docs/transformations/dbt). Learn how to set up your project for orchestration through Fivetran in our [Transformations for dbt Core setup guides](https://fivetran.com/docs/transformations/dbt#setupguide).
+Fivetran offers the ability for you to orchestrate your dbt project through [Fivetran Transformations for dbt Core™](https://fivetran.com/docs/transformations/dbt#transformationsfordbtcore). Learn how to set up your project for orchestration through Fivetran in our [Transformations for dbt Core setup guides](https://fivetran.com/docs/transformations/dbt/setup-guide#transformationsfordbtcoresetupguide).
 
 ## Does this package have dependencies?
 This dbt package is dependent on the following dbt packages. These dependencies are installed by default within this package. For more information on the following packages, refer to the [dbt hub](https://hub.getdbt.com/) site.
@@ -286,14 +305,18 @@ packages:
 
 ```
 
+<!--section="iterable_maintenance"-->
 ## How is this package maintained and can I contribute?
+
 ### Package Maintenance
-The Fivetran team maintaining this package _only_ maintains the latest version of the package. We highly recommend you stay consistent with the [latest version](https://hub.getdbt.com/fivetran/iterable/latest/) of the package and refer to the [CHANGELOG](https://github.com/fivetran/dbt_iterable/blob/main/CHANGELOG.md) and release notes for more information on changes across versions.
+The Fivetran team maintaining this package only maintains the [latest version](https://hub.getdbt.com/fivetran/iterable/latest/) of the package. We highly recommend you stay consistent with the latest version of the package and refer to the [CHANGELOG](https://github.com/fivetran/dbt_iterable/blob/main/CHANGELOG.md) and release notes for more information on changes across versions.
 
 ### Contributions
 A small team of analytics engineers at Fivetran develops these dbt packages. However, the packages are made better by community contributions.
 
-We highly encourage and welcome contributions to this package. Check out [this dbt Discourse article](https://discourse.getdbt.com/t/contributing-to-a-dbt-package/657) on the best workflow for contributing to a package.
+We highly encourage and welcome contributions to this package. Learn how to contribute to a package in dbt's [Contributing to an external dbt package article](https://discourse.getdbt.com/t/contributing-to-a-dbt-package/657).
+
+<!--section-end-->
 
 ## Are there any resources available?
 - If you have questions or want to reach out for help, see the [GitHub Issue](https://github.com/fivetran/dbt_iterable/issues/new/choose) section to find the right avenue of support for you.
