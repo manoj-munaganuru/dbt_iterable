@@ -15,11 +15,11 @@ with user_event_metrics as (
 
     select
         source_relation,
-        _fivetran_user_id,
+        coalesce(_fivetran_user_id, email) as user_key,
         count(*) as count_lists,
         {{ dbt.concat(["'['", fivetran_utils.string_agg(field_to_agg="cast(list_id as " ~ dbt.type_string() ~ ")", delimiter="','"), "']'"]) }} as email_list_ids
     from list_users
-    group by 1, 2 
+    group by 1, 2
 
 ), user_history_unnest as (
     -- this has all the user fields we're looking to pass through
@@ -79,8 +79,7 @@ with user_event_metrics as (
         on user_with_list_metrics.unique_user_key = user_event_metrics.unique_user_key
         and user_with_list_metrics.source_relation = user_event_metrics.source_relation
     left join list_user_aggregated
-        -- use _fivetran_user_id since in list_user it is a primary key
-        on user_with_list_metrics._fivetran_user_id = list_user_aggregated._fivetran_user_id
+        on coalesce(user_with_list_metrics._fivetran_user_id, user_with_list_metrics.email) = list_user_aggregated.user_key
         and user_with_list_metrics.source_relation = list_user_aggregated.source_relation
 )
 

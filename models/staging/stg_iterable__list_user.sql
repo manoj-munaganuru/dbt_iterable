@@ -26,6 +26,7 @@ final as (
     select
         source_relation,
         cast(_fivetran_id as {{ dbt.type_string() }} ) as _fivetran_user_id,
+        email,
         index as list_user_index,
         list_id,
         _fivetran_synced

@@ -5,8 +5,15 @@
 
 with base as (
 
-    select * 
+    select *
     from {{ ref('stg_iterable__event_extension_tmp') }}
+
+),
+
+event_emails as (
+
+    select event_id, email
+    from {{ ref('stg_iterable__event') }}
 
 ),
 
@@ -74,12 +81,15 @@ final as (
         reason,
         sms_send_count,
         _fivetran_synced,
-        cast(_fivetran_user_id as {{ dbt.type_string() }} ) as _fivetran_user_id
+        cast(_fivetran_user_id as {{ dbt.type_string() }} ) as _fivetran_user_id,
+        e.email
 
         --The below script allows for pass through columns.
         {{ fivetran_utils.fill_pass_through_columns('iterable_event_extension_pass_through_columns') }}
 
     from fields
+    left join event_emails e
+        on cast(fields._fivetran_id as {{ dbt.type_string() }}) = e.event_id
 )
 
 select *
