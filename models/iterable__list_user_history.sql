@@ -37,7 +37,7 @@ with user_history_unnest as (
     from user_history_unnest
     left join list_users
         on list_users.source_relation = user_history_unnest.source_relation
-        and list_users._fivetran_user_id = user_history_unnest._fivetran_user_id
+        and coalesce(list_users._fivetran_user_id, list_users.email) = coalesce(user_history_unnest._fivetran_user_id, user_history_unnest.email)
     left join lists
         on lists.source_relation = user_history_unnest.source_relation
         and lists.list_id = coalesce(list_users.list_id, user_history_unnest.list_id)

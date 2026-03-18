@@ -27,6 +27,7 @@ with message_type_channel as (
     select
         source_relation,
         _fivetran_user_id,
+        email,
         unique_user_key,
         channel_id,
         cast(null as {{ dbt.type_string() }}) as message_type_id,
@@ -40,6 +41,7 @@ with message_type_channel as (
     select
         source_relation,
         _fivetran_user_id,
+        email,
         unique_user_key,
         cast(null as {{ dbt.type_string() }}) as channel_id,
         message_type_id,
@@ -52,6 +54,7 @@ with message_type_channel as (
     select
         combine.source_relation,
         combine._fivetran_user_id,
+        combine.email,
         combine.unique_user_key,
         -- coalescing since message_type -> channel goes up a grain
         coalesce(combine.channel_id, message_type_channel.channel_id) as channel_id,
