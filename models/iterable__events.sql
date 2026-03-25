@@ -70,7 +70,7 @@ with events as (
         message_type_channel.channel_type
 
         {% if using_event_extension %}
-        {% set exclude_fields = ["source_relation", "unique_user_key","_fivetran_user_id","event_id", "content_id", "_fivetran_synced", "unique_event_id"] %}
+        {% set exclude_fields = ["source_relation", "unique_user_key","_fivetran_user_id","event_id", "content_id", "_fivetran_synced", "unique_event_id", "email"] %}
         , {{ dbt_utils.star(from=ref('stg_iterable__event_extension'), except=exclude_fields, relation_alias="event_extension") }}
         {% endif %}
 
