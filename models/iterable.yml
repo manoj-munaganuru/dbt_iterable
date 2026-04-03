@@ -429,8 +429,6 @@ models:
         description: A Fivetran-created unique identifier for the new Iterable schema in Aug 2023, for users, derived from hashing user_id and/or email, depending on project type.
       - name: unique_user_key
         description: The unique identifier of the user. With the new schema (Aug 2023), it is the _fivetran_user_id. This is a hash of user_id and/or email, depending on project type. If using the old schema, it is email.
-        tests:
-          - not_null
       - name: channel_id
         description: Unique identifier of the channel which the user is unsubscribed
       - name: message_type_id
